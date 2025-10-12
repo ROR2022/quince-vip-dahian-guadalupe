@@ -40,7 +40,8 @@ function EnvelopeContent({ onOpen }) {
           const { personalInvitation } = dataGuest;
           setInviteData({
             name: dataGuest.name,
-            message: personalInvitation.message
+            message: personalInvitation.message,
+            guestCount: dataGuest.guestCount || 1,
           });
         }
       } else {
@@ -64,11 +65,12 @@ function EnvelopeContent({ onOpen }) {
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-amber-50 via-stone-100 to-amber-50 flex flex-col items-center justify-center z-[60]">
-      <div className="flex flex-col items-center mb-16 text-amber-800 font-main-text text-lg">
+      <div className="flex flex-col items-center mb-16 text-amber-800  text-lg">
           <h5>{inviteData? "Invitación Para: " : ""}</h5>
-          <div className="mt-2 text-2xl font-semibold">{inviteData ? inviteData.name : ""}</div>
+          <div className="mt-2 text-2xl font-main-text font-semibold">{inviteData ? inviteData.name : ""}</div>
+          <div>{inviteData? `${inviteData.guestCount} Personas`:""}</div>
           <div className="mt-2 text-lg">{event.date.full}</div>
-          <div className="mt-1 text-sm italic px-8 text-center">
+          <div className="mt-1 text-sm italic px-10 text-center">
             {inviteData ? inviteData.message : ""}
           </div>
         </div>
