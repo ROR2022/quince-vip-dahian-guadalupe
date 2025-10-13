@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 
 //import Navigation from "../components/navigation"
@@ -27,6 +27,17 @@ import VideoElement from "@/components/sections/VideoElement"
 export default function WeddingInvitation() {
   const [isOpenInvitation, setIsOpenInvitation] = useState(false);
   const [isWelcomeMessageVisible, setIsWelcomeMessageVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Asegurarse de que el componente se monte en el cliente
+  useEffect(() => {
+    if(typeof window !== 'undefined')
+    setIsMounted(true);
+  }, []);
+
+  if(!isMounted) {
+    return null; // O un indicador de carga si lo prefieres
+  }
 
   const handleOpenInvitation = () => {
     setIsOpenInvitation(true);
