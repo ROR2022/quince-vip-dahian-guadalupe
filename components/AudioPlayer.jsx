@@ -10,7 +10,51 @@ import { useAutoPlayOnInteraction } from "@/hooks/useAutoPlayOnInteraction";
 import { quinceMainData } from "@/components/sections/data/main-data";
 const { audio } = quinceMainData;
 
+// Función específica para detectar iOS con más precisión
+const detectIOSDevice = () => {
+  if (typeof window === 'undefined') return false;
+  
+  const userAgent = navigator.userAgent;
+  const platform = navigator.platform;
+  const maxTouchPoints = navigator.maxTouchPoints || 0;
+  
+  const isIOS = /iPad|iPhone|iPod/.test(userAgent) || 
+               (platform === 'MacIntel' && maxTouchPoints > 1);
+  
+  console.log('🍎 AudioPlayer iOS Detection:', {
+    userAgent,
+    platform,
+    maxTouchPoints,
+    isIOS,
+    audioContext: typeof AudioContext !== 'undefined',
+    webkitAudioContext: typeof webkitAudioContext !== 'undefined'
+  });
+  
+  return isIOS;
+};
+
 function AudioPlayer() {
+  const [iosDevice, setIOSDevice] = React.useState(false);
+  
+  // Detectar iOS al montar el componente
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isIOS = detectIOSDevice();
+      setIOSDevice(isIOS);
+      
+      if (isIOS) {
+        console.log('🍎 AudioPlayer: iOS detected, applying iOS-specific configurations');
+        
+        // Verificar si el audio está disponible y configurado correctamente
+        console.log('🍎 Audio Config Check:', {
+          audioSrc: audio?.src,
+          audioConfig: audio,
+          hasAudioSupport: typeof Audio !== 'undefined'
+        });
+      }
+    }
+  }, []);
+
   const { isPlaying, isLoading, error, toggle, restart, progress } =
     useAudioPlayer(audio);
 
@@ -21,34 +65,72 @@ function AudioPlayer() {
   // Intentar auto-play cuando el usuario interactúe por primera vez
   React.useEffect(() => {
     if (hasInteracted && !isPlaying && !error) {
+      // Logging específico para iOS
+      if (iosDevice) {
+        console.log('🍎 iOS: Usuario interactuó, intentando auto-play...');
+      }
+      
       // Pequeño delay para mejor UX
       const timer = setTimeout(() => {
         const audioElement = document.querySelector("audio");
         if (audioElement) {
+          console.log('🍎 Audio element found:', {
+            readyState: audioElement.readyState,
+            networkState: audioElement.networkState,
+            src: audioElement.src,
+            canPlay: audioElement.canPlayType ? audioElement.canPlayType('audio/mpeg') : 'unknown'
+          });
+          
           tryAutoPlay(audioElement).then((success) => {
             if (!success) {
               // Si el auto-play falla, mostrar indicador visual más fuerte
-              console.log(
-                "🎵 Auto-play falló, usuario debe hacer click manual"
-              );
+              console.log("🎵 Auto-play falló, usuario debe hacer click manual");
+              if (iosDevice) {
+                console.log("� iOS Auto-play failed - user must manually trigger");
+              }
+            } else {
+              if (iosDevice) {
+                console.log("🍎 iOS Auto-play successful!");
+              }
             }
+          }).catch((err) => {
+            console.error('🍎 iOS Auto-play error:', err);
           });
+        } else {
+          console.warn('🍎 No audio element found in DOM');
         }
       }, 500);
 
       return () => clearTimeout(timer);
     }
-  }, [hasInteracted, isPlaying, error, tryAutoPlay]);
+  }, [hasInteracted, isPlaying, error, tryAutoPlay, iosDevice]);
 
   React.useEffect(() => {
     if (hasInteracted) {
       console.warn("🎵 Usuario ya interactuó, no es necesario esperar más");
+      if (iosDevice) {
+        console.log("🍎 iOS: User already interacted, attempting auto-play...");
+      }
     tryAutoPlay(); // Intentar auto-play al montar
     }
   }, []);
 
+  // Logging específico cuando hay errores en iOS
+  React.useEffect(() => {
+    if (error && iosDevice) {
+      console.error('🍎 iOS AudioPlayer Error:', {
+        error,
+        audioConfig: audio,
+        hasInteracted,
+        isWaitingForInteraction,
+        userAgent: navigator.userAgent
+      });
+    }
+  }, [error, iosDevice, hasInteracted, isWaitingForInteraction]);
+
   // Si hay error crítico, no mostrar el reproductor
-  if (error && !weddingData.audio?.src) {
+  if (error && !audio?.src) {
+    console.warn('🚫 AudioPlayer: No audio source available, hiding player');
     return null;
   }
 
