@@ -350,6 +350,61 @@ export default function ParentsSection() {
                     </div>
                   </div>
                 </div>
+
+            {/* Card de Hermana */}
+                <div
+                  className={`${getAnimationClass(
+                    godparentsVisible,
+                    "slide-in-right",
+                    "delay-600"
+                  )} parent-card`}
+                >
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:border-white/40 transition-all duration-300">
+                    <div className="flex items-center justify-center mb-4">
+                      <span className="text-3xl animate-heart-beat mr-2">
+                        🤝
+                      </span>
+                      <h3
+                        className={
+                          godparentsVisible ? completeClass : basicClass
+                        }
+                      >
+                        Mi Hermana
+                      </h3>
+                      <span className="text-3xl animate-heart-beat ml-2">
+                        🤝
+                      </span>
+                    </div>
+                    <div>
+                      <Image
+                        src="/images/sisDahian1.jpg"
+                        alt="Foto de los abuelos"
+                        width={300}
+                        height={300}
+                        className="w-48 h-48 object-contain rounded-full mx-auto mb-4 border-4 border-white/30 shadow-lg hover:scale-105 transition-transform duration-300"
+                        quality={100}
+                        priority={true}
+                        placeholder="blur"
+                        blurDataURL="/images/placeholder.png"
+                      />
+                    </div>
+                    <div style={{ display: "none" }} className="space-y-3">
+                      <div className="flex items-center justify-center space-x-2">
+                        <span className="text-lg">🤵</span>
+                        <p className="text-xl font-medium text-glow">
+                          {godparents.godfather}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center space-x-2">
+                        <span className="text-lg">👰</span>
+                        <p className="text-xl font-medium text-glow">
+                          {godparents.godmother}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
