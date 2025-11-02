@@ -153,7 +153,7 @@ export default function CeremonySection() {
               <div className={getElegantAnimationClass(imageVisible, 'curtain-reveal', 'delay-600')}>
                 <div className="spotlight-image relative w-full h-96 rounded-2xl shadow-2xl overflow-hidden mx-auto">
                   <Image
-                    src={ceremony.ceremonyImage}
+                    src='/images/dahian20.jpg'
                     alt="Ceremony Image"
                     fill
                     className="object-cover"
