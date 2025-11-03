@@ -23,9 +23,9 @@ export default function ParentsSection() {
           if (entry.isIntersecting) {
             setIsInView(true);
             // Secuencia de animaciones escalonadas
-            setTimeout(() => setMessageVisible(true), 50);
-            setTimeout(() => setParentsVisible(true), 100);
-            setTimeout(() => setGodparentsVisible(true), 200);
+            setTimeout(() => setMessageVisible(true), 100);
+            setTimeout(() => setParentsVisible(true), 200);
+            setTimeout(() => setGodparentsVisible(true), 300);
           } else {
             // Reset cuando sale de vista
             setIsInView(false);
@@ -47,6 +47,14 @@ export default function ParentsSection() {
       return () => observer.disconnect();
     }, []);
   }, []);
+
+  useEffect(() => {
+    if(messageVisible && !parentsVisible) setParentsVisible(true);
+  }, [messageVisible]);
+
+  useEffect(() => {
+    if(parentsVisible && !godparentsVisible) setGodparentsVisible(true);
+  }, [parentsVisible]);
 
   useIntersectionObserver();
 
