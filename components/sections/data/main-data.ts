@@ -60,7 +60,7 @@ export const quinceMainData = {
       ceremonyImage: "/images/dahian14.jpg",
     },
     party: {
-      time: "19:30 hrs.",
+      time: "20:00 hrs.",
       venue: "Salón Zeus",
       address: "Pueblo de San Sebastián #411, Santa María Tequepexpan, 45601 Guadalajara, Jal.",
       type: "Recepción",
@@ -152,7 +152,7 @@ export const quinceMainData = {
     backgroundImage: "/images/countdown-bg.jpg",
   },
   attendance: {
-    whatsappNumber: "5217777937484",
+    whatsappNumber: "5213333030906", //+52 1 33 3303 0906
     title: "CONFIRMACIÓN DE ASISTENCIA",
     message: "Respetuosamente",
     subtitle: "Confirmar antes del evento.",
@@ -190,20 +190,11 @@ export const quinceMainData = {
         link: "https://example.com/lluvia-de-sobres",
       },
       {
-        id: "transferencia",
-        name: "Transferencia Bancaria",
-        icon: "🏦",
-        description:
-          "Si prefieres, puedes hacer una transferencia bancaria como regalo.",
-        image: "/images/gifts/bank-transfer.png",
-        link: "https://example.com/transferencia-bancaria",
-      },
-      {
-        id: "mesaRegalos",
-        name: "Mesa de Regalos",
+        id: "regaloSorpresa",
+        name: "Regalo Sorpresa",
         icon: "🎁",
         description:
-          "Hemos creado una mesa de regalos con opciones que nos encantaría recibir.",
+          "Una sorpresa especial siempre es bienvenida. ¡Elige algo que creas que me encantará!",
         image: "/images/gifts/gift-box.png",
         link: "https://example.com/mesa-de-regalos",
       }
