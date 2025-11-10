@@ -256,6 +256,131 @@ ${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
     await processConfirmation();
   };
 
+  // 🚀 Función mejorada para asegurar que WhatsApp se abra
+  const openWhatsAppReliably = (mensaje: string, mensajeCodificado: string) => {
+    const deviceInfo = getDeviceAndBrowserInfo();
+    
+    console.log("📱 Intentando abrir WhatsApp...", { deviceInfo });
+
+    // 🎯 MÉTODO 1: Intentar WhatsApp nativo en móviles
+    if (deviceInfo.isMobile) {
+      try {
+        // Protocolo nativo de WhatsApp
+        const nativeUrl = `whatsapp://send?phone=${whatsappNumber}&text=${mensajeCodificado}`;
+        console.log("🔄 Método 1: Protocolo nativo", nativeUrl);
+        
+        window.location.href = nativeUrl;
+        
+        // Verificar si se abrió después de 2 segundos
+        setTimeout(() => {
+          // Si seguimos en la página, el protocolo nativo falló
+          console.log("⚠️ Protocolo nativo no funcionó, probando método 2");
+          openWhatsAppWeb(mensaje, mensajeCodificado);
+        }, 2000);
+        
+        return; // Salir para esperar el timeout
+      } catch (error) {
+        console.log("❌ Error con protocolo nativo:", error);
+      }
+    }
+
+    // 🎯 MÉTODO 2: WhatsApp Web (para desktop o fallback móvil)
+    openWhatsAppWeb(mensaje, mensajeCodificado);
+  };
+
+  // 🌐 Función para abrir WhatsApp Web con múltiples intentos
+  const openWhatsAppWeb = (mensaje: string, mensajeCodificado: string) => {
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${mensajeCodificado}`;
+    
+    console.log("🔄 Método 2: WhatsApp Web", whatsappUrl);
+    
+    // Intentar abrir con window.open
+    const whatsappWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+
+    if (whatsappWindow && !whatsappWindow.closed) {
+      console.log("✅ WhatsApp Web abierto exitosamente");
+      
+      // Verificar si la ventana sigue abierta después de 3 segundos
+      setTimeout(() => {
+        if (whatsappWindow.closed) {
+          console.log("✅ Usuario interactuó con WhatsApp");
+        } else {
+          console.log("⚠️ Ventana aún abierta, posible problema");
+          // Intentar método 3
+          openWhatsAppFallback(mensaje);
+        }
+      }, 3000);
+      
+    } else {
+      console.log("❌ window.open falló, probando método 3");
+      // Intentar método 3 inmediatamente
+      openWhatsAppFallback(mensaje);
+    }
+  };
+
+  // 🆘 Método de respaldo final
+  const openWhatsAppFallback = (mensaje: string) => {
+    console.log("🔄 Método 3: Fallback manual");
+    
+    const confirmarCopia = confirm(
+      "¡Tu confirmación fue guardada exitosamente! 🎉\n\n" +
+        "Parece que WhatsApp no se abrió automáticamente.\n\n" +
+        "¿Quieres copiar el mensaje para enviarlo manualmente?"
+    );
+
+    if (confirmarCopia) {
+      // Intentar copiar al portapapeles
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard
+          .writeText(mensaje)
+          .then(() => {
+            alert(
+              "✅ Mensaje copiado al portapapeles!\n\n" +
+                "Ahora abre WhatsApp y envía el mensaje a:\n" +
+                `+${whatsappNumber}\n\n` +
+                "O busca el contacto directamente en WhatsApp."
+            );
+            
+            // Intentar abrir WhatsApp una vez más
+            setTimeout(() => {
+              window.open(`https://wa.me/${whatsappNumber}`, "_blank");
+            }, 1000);
+          })
+          .catch(() => {
+            // Fallback si clipboard falla
+            mostrarMensajeManual(mensaje);
+          });
+      } else {
+        // Fallback si no hay clipboard API
+        mostrarMensajeManual(mensaje);
+      }
+    }
+  };
+
+  // 📝 Mostrar mensaje para copia manual
+  const mostrarMensajeManual = (mensaje: string) => {
+    const textoCompleto = `Envía este mensaje a WhatsApp +${whatsappNumber}:\n\n${mensaje}`;
+    
+    // Usar prompt como último recurso
+    try {
+      prompt("Copia este mensaje y envíalo por WhatsApp:", textoCompleto);
+    } catch (error) {
+      // Crear modal temporal si prompt no está disponible
+      const modal = document.createElement('div');
+      modal.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+          <div style="background: white; padding: 20px; border-radius: 10px; max-width: 500px; margin: 20px;">
+            <h3>📱 Envía por WhatsApp</h3>
+            <p>Copia este mensaje y envíalo a: <strong>+${whatsappNumber}</strong></p>
+            <textarea readonly style="width: 100%; height: 200px; margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">${mensaje}</textarea>
+            <button onclick="this.parentElement.parentElement.remove()" style="background: #25D366; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cerrar</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+  };
+
   const processConfirmation = async () => {
     // Validación simple
     if (!formData.nombre.trim()) {
@@ -292,9 +417,6 @@ ${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
 
     // Codificar el mensaje para URL
     const mensajeCodificado = encodeURIComponent(mensaje);
-
-    // Crear URL de WhatsApp
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${mensajeCodificado}`;
 
     try {
       // 🎯 NUEVA FUNCIONALIDAD: Llamar al endpoint de confirmación automática
@@ -364,44 +486,10 @@ ${formData.mensaje ? `💌 *Mensaje especial:*\n${formData.mensaje}` : ""}
       // No mostrar error al usuario - mantener transparencia como especificado
     }
 
-    // Simular delay de envío y abrir WhatsApp (funcionalidad original)
+    // Simular delay de envío y abrir WhatsApp (funcionalidad mejorada)
     setTimeout(() => {
-      console.log("📱 Abriendo WhatsApp...", whatsappUrl);
-
-      // Abrir WhatsApp
-      const whatsappWindow = window.open(whatsappUrl, "_blank");
-
-      if (whatsappWindow) {
-        console.log("✅ WhatsApp abierto exitosamente");
-      } else {
-        console.error(
-          "❌ No se pudo abrir WhatsApp - posible bloqueador de pop-ups"
-        );
-
-        // Mostrar el mensaje con opción de copiar
-        const confirmarCopia = confirm(
-          "¡Tu confirmación fue guardada exitosamente! 🎉\n\n" +
-            "No se pudo abrir WhatsApp automáticamente (bloqueador de pop-ups).\n\n" +
-            "¿Quieres copiar el mensaje para enviarlo manualmente?"
-        );
-
-        if (confirmarCopia) {
-          // Copiar mensaje al portapapeles
-          navigator.clipboard
-            .writeText(mensaje)
-            .then(() => {
-              alert(
-                "✅ Mensaje copiado al portapapeles!\n\n" +
-                  "Ahora abre WhatsApp manualmente y envía el mensaje a:\n" +
-                  `+${whatsappNumber}`
-              );
-            })
-            .catch(() => {
-              // Fallback si no se puede copiar automáticamente
-              prompt("Copia este mensaje y envíalo por WhatsApp:", mensaje);
-            });
-        }
-      }
+      // 🚀 Usar la nueva función mejorada para abrir WhatsApp
+      openWhatsAppReliably(mensaje, mensajeCodificado);
 
       // Mostrar mensaje de éxito
       setShowSuccess(true);
