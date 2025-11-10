@@ -259,8 +259,9 @@ export default function ParentsSection() {
                         blurDataURL="/images/placeholder.png"
                       />
                     </div>
-                    <div className="flex gap-1 justify-center items-center p-6 rounded-full border-4 border-white/30 shadow-lg hover:scale-105 transition-transform duration-300">
-                      <div>
+                    <div className="flex flex-col gap-1 justify-center items-center p-6 rounded-full border-4 border-white/30 shadow-lg hover:scale-105 transition-transform duration-300">
+                      <div className="flex gap-3 justify-center items-center">
+                        <div>
                         <Image
                           src="/images/abueDahian1.jpg"
                           //lazo-negro.png
@@ -287,6 +288,20 @@ export default function ParentsSection() {
                         placeholder="blur"
                         blurDataURL="/images/placeholder.png"
                       />
+                      </div>
+                      <div>
+                        <Image
+                         src="/images/abuelitoDahian.jpg"
+                          alt="Foto del abuelo"
+                          width={300}
+                          height={300}
+                          className="w-48 h-48 object-contain rounded-full"
+                          quality={100}
+                          priority={true}
+                          placeholder="blur"
+                          blurDataURL="/images/placeholder.png"
+                        />
+                      </div>
                     </div>
                     <div style={{ display: "none" }} className="space-y-3">
                       <div className="flex items-center justify-center space-x-2">
