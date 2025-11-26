@@ -126,6 +126,12 @@ export default function WeddingInvitation() {
     setIsWelcomeMessageVisible(false);
   }; 
 
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      Proyecto en pausa. Volveremos pronto.
+    </div>
+  )
+
   if(!isOpenInvitation) {
     console.log('📧 SHOWING ENVELOPE...');
     return (
